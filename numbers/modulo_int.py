@@ -1,13 +1,14 @@
+"""Implementation of integers with modular arithmetic semantics."""
+
 from __future__ import annotations
-from math import gcd
+
 from enum import Enum, auto
-from typing import Generator, Tuple
+from math import gcd
+from typing import Generator
+
+
 class ModuloInt(int):
-    """
-    Integer modulo n.
-    
-    Supports +, -, *, //, %, **, unary -, comparisons, etc.
-    """
+    """Integer modulo ``n`` supporting common arithmetic operators."""
 
     modulus: int
 
@@ -18,44 +19,41 @@ class ModuloInt(int):
         obj.modulus = modulus
         return obj
 
-    # ------------------------------------------------------------
-    # Helper functions
-    # ------------------------------------------------------------
-
     def _coerce(self, other):
-        """Convert operand to a compatible ModuloInt."""
+        """Convert operand to a compatible ``ModuloInt``."""
+
         if isinstance(other, ModuloInt):
             if other.modulus != self.modulus:
                 raise ValueError(
-                    f"Cannot operate on ModuloInt with different moduli "
-                    f"({self.modulus} vs {other.modulus})"
+                    f"Cannot operate on ModuloInt with different moduli ({self.modulus} vs {other.modulus})"
                 )
             return int(other)
-        elif isinstance(other, int):
+
+        if isinstance(other, int):
             return other
+
         return NotImplemented
 
     def opposite(self) -> ModuloInt:
-        """Additive inverse modulo n."""
+        """Return the additive inverse modulo ``n``."""
+
         return ModuloInt(-int(self), self.modulus)
 
     def inverse(self) -> ModuloInt:
-        """Multiplicative inverse modulo n (requires gcd(self, n) == 1)."""
+        """Return the multiplicative inverse modulo ``n`` (requires ``gcd(self, n) == 1``)."""
+
         a, n = int(self), self.modulus
         if gcd(a, n) != 1:
             raise ValueError(f"{a} has no multiplicative inverse modulo {n}.")
-        # Using extended Euclidean algorithm
+
         t, new_t = 0, 1
         r, new_r = n, a
         while new_r != 0:
             q = r // new_r
             t, new_t = new_t, t - q * new_t
             r, new_r = new_r, r - q * new_r
-        return ModuloInt(t, n)
 
-    # ------------------------------------------------------------
-    # Arithmetic operators
-    # ------------------------------------------------------------
+        return ModuloInt(t, n)
 
     def __add__(self, other):
         o = self._coerce(other)
@@ -87,27 +85,31 @@ class ModuloInt(int):
         o = self._coerce(other)
         return ModuloInt(int(self) % o, self.modulus)
 
-    def __pow__(self, other, modulo=None):
+    def __pow__(self, other, modulo=None):  # noqa: D401 - part of arithmetic API
         if modulo is not None:
             raise ValueError("Use built-in pow(a, b, n) instead of a**b with modulo.")
         o = self._coerce(other)
         return ModuloInt(pow(int(self), o, self.modulus), self.modulus)
 
-    # ------------------------------------------------------------
-    # Representation
-    # ------------------------------------------------------------
     def __repr__(self):
         return f"ModuloInt({int(self)} mod {self.modulus})"
 
+
 class Direction(Enum):
+    """Direction to advance in :func:`modulo_range`."""
+
     INCREASING = 1
     DECREASING = -1
     INCREASE = 1
     DECREASE = -1
 
+
 class ModuloRangeMode(Enum):
+    """Modes that control :func:`modulo_range` iteration length."""
+
     DETECT = auto()
     INFINITE = auto()
+
 
 def modulo_range(
     start: int,
@@ -115,8 +117,9 @@ def modulo_range(
     step: int,
     modulus: int,
     direction: Direction = Direction.INCREASING,
-    max_range_amount: ModuloRangeMode | int | float = ModuloRangeMode.DETECT
+    max_range_amount: ModuloRangeMode | int | float = ModuloRangeMode.DETECT,
 ) -> Generator[ModuloInt, None, None]:
+    """Yield a sequence of :class:`ModuloInt` values on a modular number line."""
 
     if step <= 0:
         raise ValueError("Step must be positive.")
@@ -125,16 +128,11 @@ def modulo_range(
     stop_mod = ModuloInt(stop, modulus)
     current = start_mod
 
-    # --- Determine max iterations -----------------------------------
-
     if max_range_amount is ModuloRangeMode.INFINITE:
         max_iter = float("inf")
-
     elif max_range_amount is ModuloRangeMode.DETECT:
-        # Length of cycle: modulus / gcd(modulus, step)
         cycle_len = modulus // gcd(modulus, step)
-        max_iter = cycle_len + 1  # +1 to give stop chance to appear
-
+        max_iter = cycle_len + 1
     elif isinstance(max_range_amount, (int, float)):
         max_iter = int(max_range_amount)
         if max_iter <= 0:
@@ -142,13 +140,9 @@ def modulo_range(
     else:
         raise TypeError("Invalid max_range_amount")
 
-    # --- Determine step direction -----------------------------------
-
     step = abs(step)
     if direction == Direction.DECREASING:
         step = -step
-
-    # --- Iteration loop ----------------------------------------------
 
     count = 0
     while current != stop_mod and count < max_iter:
