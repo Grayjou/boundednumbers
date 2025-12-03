@@ -55,4 +55,9 @@ def cyclic_wrap(value: RealNumber, min_value: RealNumber, max_value: RealNumber)
     size = max_value - min_value + 1
     return (value - min_value) % size + min_value
 
+def cyclic_wrap_float(value: RealNumber, min_value: RealNumber, max_value: RealNumber) -> RealNumber:
+    """Wrap inside ``[min_value, max_value]`` like a cyclic range."""
+
+    size = max_value - min_value
+    return (value - min_value) % size + min_value
 

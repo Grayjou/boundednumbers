@@ -110,6 +110,24 @@ class ModuloRangeMode(Enum):
     DETECT = auto()
     INFINITE = auto()
 
+def modulo_yield_many(
+        start: int,
+        step: int,
+        modulus: int,
+        amount: int,
+        direction: Direction = Direction.INCREASING,
+    ) -> Generator[ModuloInt, None, None]:
+    """Yield a specified amount of ModuloInt values starting from 'start'."""
+    if step <= 0:
+        raise ValueError("Step must be positive.")
+    start_mod = ModuloInt(start, modulus)
+    current = start_mod
+    step = abs(step)
+    if direction == Direction.DECREASING:
+        step = -step
+    for _ in range(amount):
+        yield current
+        current = ModuloInt(int(current) + step, modulus)
 
 def modulo_range(
     start: int,
@@ -118,34 +136,54 @@ def modulo_range(
     modulus: int,
     direction: Direction = Direction.INCREASING,
     max_range_amount: ModuloRangeMode | int | float = ModuloRangeMode.DETECT,
+    *,
+    forced_amount: int | None = None,
 ) -> Generator[ModuloInt, None, None]:
-    """Yield a sequence of :class:`ModuloInt` values on a modular number line."""
 
     if step <= 0:
         raise ValueError("Step must be positive.")
+
+    # --- Forced mode: just yield N steps -----------------------------
+    if forced_amount is not None:
+        yield from modulo_yield_many(start, step, modulus, forced_amount, direction)
+        return
 
     start_mod = ModuloInt(start, modulus)
     stop_mod = ModuloInt(stop, modulus)
     current = start_mod
 
+    # --- Determine iteration limit ----------------------------------
     if max_range_amount is ModuloRangeMode.INFINITE:
         max_iter = float("inf")
+
     elif max_range_amount is ModuloRangeMode.DETECT:
+        # one full modular cycle WITHOUT allowing a repeat of start
         cycle_len = modulus // gcd(modulus, step)
-        max_iter = cycle_len + 1
-    elif isinstance(max_range_amount, (int, float)):
+        max_iter = cycle_len
+
+    else:
         max_iter = int(max_range_amount)
         if max_iter <= 0:
             raise ValueError("max_range_amount must be positive.")
-    else:
-        raise TypeError("Invalid max_range_amount")
 
     step = abs(step)
     if direction == Direction.DECREASING:
         step = -step
 
-    count = 0
-    while current != stop_mod and count < max_iter:
-        yield current
-        current = ModuloInt(int(current) + step, modulus)
+    # --- Main loop ---------------------------------------------------
+    # Always yield the start
+    yield current
+    count = 1  
+
+    while count < max_iter:
+        next_val = ModuloInt(int(current) + step, modulus)
+
+        # stop before repeating stop
+        if next_val == stop_mod:
+            break
+
+        yield next_val
+        current = next_val
         count += 1
+
+        
