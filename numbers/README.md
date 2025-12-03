@@ -40,7 +40,7 @@ Reflects back into the interval when leaving it.
 ```python
 from numbers import BouncedInt
 position = BouncedInt(120, 0, 100)  # -> 80
-position += 50                      # -> 50 (bounces at each edge)
+position += 50                      # -> 70 (bounces at each edge)
 ```
 
 ### Modulo
