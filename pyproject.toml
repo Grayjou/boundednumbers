@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "boundednumbers"
-version = "0.1.0"
+version = "0.1.1"
 description = "Numeric helpers that keep values within explicit bounds"
 readme = "README.md"
 authors = [{ name = "Bounded Numbers Contributors" }]
@@ -22,4 +22,4 @@ Homepage = "https://example.com/boundednumbers"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["numbers"]
+include = ["boundednumbers"]
