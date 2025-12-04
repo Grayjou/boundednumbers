@@ -1,4 +1,4 @@
-from boundednumbers.numbers.unit_float import UnitFloat, EnforcedUnitFloat
+from boundednumbers.unit_float import UnitFloat, EnforcedUnitFloat
 
 def test_unit_float_basic():
     assert UnitFloat(0.5) == 0.5

@@ -1,5 +1,5 @@
-from ..numbers.functions import clamp, clamp01, bounce, cyclic_wrap
 
+from ..boundednumbers.functions import clamp, clamp01, bounce, cyclic_wrap
 def test_clamp_basic():
     assert clamp(5, 0, 10) == 5
     assert clamp(-2, 0, 10) == 0

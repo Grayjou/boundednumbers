@@ -1,6 +1,6 @@
-from boundednumbers.numbers.bounded import make_bounded_int
-from boundednumbers.numbers.functions import extract_excess
-from boundednumbers.numbers.types import RealNumber
+from boundednumbers.bounded import make_bounded_int
+from boundednumbers.functions import extract_excess
+from boundednumbers.types import RealNumber
 
 def substract_excess_squared_mod(value: RealNumber, min_value: RealNumber, max_value: RealNumber) -> RealNumber:
     """

@@ -1,5 +1,5 @@
-from boundednumbers.numbers.modulo_int import ModuloInt, ModuloRangeMode, modulo_range, Direction
 
+from boundednumbers.modulo_int import ModuloInt, ModuloRangeMode, modulo_range, Direction
 def test_modulo_basic():
     x = ModuloInt(12, 10)
     assert x == 2
