@@ -1,7 +1,7 @@
 # conftest.py
 import pytest
-from ..numbers.bounded import ClampedInt, CyclicInt, BouncedInt, ClampedFloat, CyclicFloat, BouncedFloat
-from ..numbers.modulo_int import ModuloInt
+from ..boundednumbers.bounded import ClampedInt, CyclicInt, BouncedInt, ClampedFloat, CyclicFloat, BouncedFloat
+from ..boundednumbers.modulo_int import ModuloInt
 
 @pytest.fixture
 def clamp_int():
